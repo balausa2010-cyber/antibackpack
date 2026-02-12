@@ -1,1 +1,276 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartQala — Активный житель</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #184467, #102940);
+    color: #fff;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+h2 {
+    font-family: 'Playfair Display', serif;
+    color: #E1BD72;
+}
+
+.card {
+    background: #102940;
+    padding: 25px;
+    border-radius: 18px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    margin-bottom: 30px;
+    border-left: 6px solid #E1BD72;
+    color: #fff;
+}
+
+.card h3 {
+    color: #E1BD72;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    border: 1px solid #184467;
+    background: #102940;
+    color: #fff;
+    font-size: 14px;
+}
+
+textarea { resize: none; }
+
+.button {
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    transition: 0.3s;
+}
+
+.button-primary { background: linear-gradient(90deg, #102940, #184467); color: #E1BD72; }
+.button-gold { background: #E1BD72; color: #102940; }
+.button-danger { background: #e74c3c; color: white; }
+
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-warning { background: #E1BD72; color: #102940; }
+.badge-success { background: #184467; color: #E1BD72; }
+.badge-secondary { background: #444; color: #fff; }
+
+.progress {
+    width: 100%;
+    height: 8px;
+    background: #444;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+.progress-bar {
+    width: 50%;
+    height: 100%;
+    background: #E1BD72;
+    border-radius: 6px;
+    transition: 0.5s;
+}
+
+#map {
+    height: 300px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+}
+
+.list-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #184467;
+}
+
+.notification {
+    padding: 10px;
+    background: #184467;
+    border-left: 4px solid #E1BD72;
+    border-radius: 10px;
+    margin-bottom: 8px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h2>SmartQala — Активный житель</h2>
+
+<!-- Личная информация -->
+<div class="card">
+    <h3>Личная информация</h3>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+        <div style="background:#184467; padding:10px; border-radius:10px;"><strong>ФИО:</strong> Аида Оралбекова</div>
+        <div style="background:#184467; padding:10px; border-radius:10px;"><strong>ИИН:</strong> 030412******</div>
+        <div style="background:#184467; padding:10px; border-radius:10px;"><strong>Телефон:</strong> +7 707 123 45 67</div>
+        <div style="background:#184467; padding:10px; border-radius:10px;"><strong>Email:</strong> aida@mail.kz</div>
+    </div>
+</div>
+
+<!-- Подача заявки -->
+<div class="card">
+<h3>Подать новую заявку</h3>
+
+<select id="category" onchange="checkOther()">
+    <option>Яма на дороге</option>
+    <option>Освещение</option>
+    <option>Мусор</option>
+    <option>Детская площадка</option>
+    <option>Парковка</option>
+    <option>Озеленение</option>
+    <option>Тротуар</option>
+    <option>Водоснабжение</option>
+    <option>Отопление</option>
+    <option>Шум</option>
+    <option>Бездомные животные</option>
+    <option>Ливневая канализация</option>
+    <option>Общественный транспорт</option>
+    <option>Снег / Гололёд</option>
+    <option>Граффити / Вандализм</option>
+    <option>Другое</option>
+</select>
+
+<input type="text" id="otherTitle" placeholder="Название вашей проблемы" style="display:none; margin-bottom:15px;">
+<textarea id="description" placeholder="Опишите проблему..."></textarea>
+<input type="file">
+
+<div id="map"></div>
+
+<button class="button button-primary" onclick="submitApplication()">Отправить заявку</button>
+</div>
+
+<!-- Статус заявки -->
+<div class="card">
+<h3>Статус заявки</h3>
+
+<div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+    <span id="statusText">Новая заявка</span>
+    <span class="badge badge-secondary" id="statusBadge">Отправлено</span>
+</div>
+
+<div class="progress">
+<div class="progress-bar" id="progressBar"></div>
+</div>
+
+<div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <button class="button button-gold" style="flex:1;" onclick="updateStatus('Отправлено')">Отправлено</button>
+    <button class="button button-gold" style="flex:1;" onclick="updateStatus('В рассмотрении')">В рассмотрении</button>
+    <button class="button button-gold" style="flex:1;" onclick="updateStatus('В процессе')">В процессе</button>
+    <button class="button button-gold" style="flex:1;" onclick="updateStatus('Выполнено')">Выполнено</button>
+</div>
+</div>
+
+<!-- Уведомления -->
+<div class="card">
+<h3>Уведомления</h3>
+<div id="notifications"></div>
+</div>
+
+<script>
+// Массив задач для карты
+const tasks = [];
+
+// Карта Semey
+const map = L.map('map').setView([50.4111, 80.2275], 13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+const markers = {};
+function renderMarkers(){
+    Object.values(markers).forEach(m => map.removeLayer(m));
+    Object.keys(markers).forEach(k => delete markers[k]);
+    tasks.forEach(t => {
+        if(t.lat == null || t.lon == null) return;
+        const m = L.marker([t.lat, t.lon]).addTo(map)
+            .bindPopup('<strong>' + escapeHtml(t.title) + '</strong><br/>' + escapeHtml(t.priority))
+            .on('click', () => { highlightTask(t.id); });
+        markers[t.id] = m;
+    });
+}
+function escapeHtml(text){ const div = document.createElement("div"); div.textContent=text; return div.innerHTML; }
+function highlightTask(id){ alert("Вы выбрали задачу ID: "+id); }
+
+// Показать/скрыть поле для "Другое"
+function checkOther() {
+    let category = document.getElementById("category").value;
+    document.getElementById("otherTitle").style.display = category === "Другое" ? "block" : "none";
+}
+
+// Отправка заявки
+function submitApplication() {
+    let category = document.getElementById("category").value;
+    let otherTitle = document.getElementById("otherTitle").value;
+    let desc = document.getElementById("description").value;
+    if(category === "Другое" && !otherTitle) { alert("Введите название вашей проблемы!"); return; }
+    if(!desc) { alert("Введите описание проблемы!"); return; }
+
+    let displayName = category === "Другое" ? otherTitle : category;
+
+    // Добавляем в массив задач
+    const center = map.getCenter();
+    tasks.push({id:Date.now(), title:displayName, priority:"Средний", lat:center.lat, lon:center.lng});
+    renderMarkers();
+
+    addNotification("Новая заявка отправлена: " + displayName);
+    document.getElementById("statusText").innerText = displayName;
+    updateStatus('Отправлено');
+}
+
+// Обновление статуса
+function updateStatus(status){
+    const badge = document.getElementById("statusBadge");
+    const progress = document.getElementById("progressBar");
+    document.getElementById("statusText").innerText = status;
+
+    switch(status){
+        case 'Отправлено':
+            badge.innerText=status; badge.className="badge badge-secondary"; progress.style.width="10%"; break;
+        case 'В рассмотрении':
+            badge.innerText=status; badge.className="badge badge-warning"; progress.style.width="40%"; break;
+        case 'В процессе':
+            badge.innerText=status; badge.className="badge badge-warning"; progress.style.width="70%"; break;
+        case 'Выполнено':
+            badge.innerText=status; badge.className="badge badge-success"; progress.style.width="100%"; break;
+    }
+    addNotification("Статус заявки изменен: " + status);
+}
+
+// Добавление уведомления
+function addNotification(text){
+    let div=document.createElement("div"); div.className="notification"; div.innerText=text;
+    document.getElementById("notifications").prepend(div);
+}
+</script>
+
+</body>
+</html>
 
