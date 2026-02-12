@@ -1,1 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Кабинет администратора ЖКХ</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+   --primary:#F0F4F8;
+   --card:#FFFFFF;
+   --accent:#4DA6FF;
+   --accent-dark:#1E88E5;
+   --danger:#E74C3C;
+   --text:#0F2A43;
+   --radius:12px;
+   --low:#4CAF50;
+   --medium:#FFA500;
+   --high:#E74C3C;
+}
+*{box-sizing:border-box;font-family:Inter,sans-serif;}
+body{margin:0;padding:0;background:var(--primary);color:var(--text);}
+h2{text-align:center;color:var(--accent-dark);margin:20px 0;}
+.container{max-width:1200px;margin:0 auto;padding:0 20px;}
+.worker-info{display:flex;align-items:center;gap:15px;background:#fff;padding:10px;border-radius:var(--radius);margin-bottom:20px;box-shadow:0 4px 8px rgba(0,0,0,0.05);}
+.worker-info img{width:60px;height:60px;border-radius:50%;object-fit:cover;}
+.worker-info div{display:flex;flex-direction:column;}
+.filters{display:flex;gap:10px;margin-bottom:10px;justify-content:center;}
+.filters select{padding:6px;border-radius:var(--radius);border:1px solid #ccc;}
+.kanban{display:flex;gap:20px;}
+.column{background:#e1e8f0;border-radius:var(--radius);flex:1;padding:10px;display:flex;flex-direction:column;gap:10px;min-height:400px;}
+.column h3{text-align:center;margin:0 0 10px 0;color:var(--accent-dark);}
+.card{background:var(--card);padding:10px;border-radius:var(--radius);cursor:pointer;user-select:none;display:flex;flex-direction:column;gap:5px;}
+.card.low{border-left:6px solid var(--low);}
+.card.medium{border-left:6px solid var(--medium);}
+.card.high{border-left:6px solid var(--high);}
+.card.dragging{opacity:0.5;}
+.card img{width:100%;height:140px;object-fit:cover;border-radius:var(--radius);}
+.card select{padding:4px;border-radius:var(--radius);border:1px solid #ccc;width:100%;}
+.stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:10px;
+    margin-top:20px;
+    background:#fff;
+    padding:10px;
+    border-radius:var(--radius);
+    font-weight:600;
+    text-align:center;
+}
+.stats div{background:#f9f9f9;padding:10px;border-radius:var(--radius);}
+</style>
+</head>
+<body>
+<div class="container">
+<h2>Личный кабинет администратора</h2>
+<div class="worker-info">
+<img src="https://source.unsplash.com/60x60/?person" alt="Фото рабочего">
+<div>
+<strong>Аида Оралбекова</strong>
+<span>Должность: Администратор ЖКХ</span>
+<span>ID: 00123</span>
+</div>
+</div>
+
+<div class="filters">
+<select id="filterStatus">
+<option value="">Все статусы</option>
+<option value="new">Новые</option>
+<option value="inProgress">В процессе</option>
+<option value="done">Выполнено</option>
+</select>
+<select id="filterPriority">
+<option value="">Все приоритеты</option>
+<option value="High">High</option>
+<option value="Medium">Medium</option>
+<option value="Low">Low</option>
+</select>
+<select id="filterCategory">
+<option value="">Все категории</option>
+<option value="Яма на дороге">Яма на дороге</option>
+<option value="Освещение">Освещение</option>
+<option value="Мусор">Мусор</option>
+<option value="Другое">Другое</option>
+</select>
+</div>
+
+<div class="kanban">
+<div class="column" id="newColumn"><h3>Новые</h3></div>
+<div class="column" id="inProgressColumn"><h3>В процессе</h3></div>
+<div class="column" id="doneColumn"><h3>Выполнено</h3></div>
+</div>
+
+<div class="stats">
+<div>Новые: <span id="statNew">0</span></div>
+<div>В процессе: <span id="statProgress">0</span></div>
+<div>Выполнено: <span id="statDone">0</span></div>
+<div>High: <span id="statHigh">0</span></div>
+<div>Medium: <span id="statMedium">0</span></div>
+<div>Low: <span id="statLow">0</span></div>
+</div>
+</div>
+
+<script>
+let complaints = JSON.parse(localStorage.getItem("complaints")) || [
+   {id:1, category:"Яма на дороге", description:"Большая яма на улице Астана", priority:"High", status:"new", image:"https://source.unsplash.com/600x400/?road", destination:"Дорожники"},
+   {id:2, category:"Освещение", description:"Нет света на улице Баян", priority:"Medium", status:"new", image:"https://source.unsplash.com/600x400/?street,light", destination:"ЖКХ"},
+   {id:3, category:"Мусор", description:"Куча мусора возле дома", priority:"Low", status:"new", image:"https://source.unsplash.com/600x400/?trash", destination:"ЖКХ"},
+   {id:4, category:"Освещение", description:"Лампочка не горит на улице Абай", priority:"High", status:"inProgress", image:"https://source.unsplash.com/600x400/?street,light", destination:"ЖКХ"},
+   {id:5, category:"Яма на дороге", description:"Яма около школы", priority:"Medium", status:"done", image:"https://source.unsplash.com/600x400/?road", destination:"Дорожники"}
+];
+
+function saveData(){localStorage.setItem("complaints", JSON.stringify(complaints)); renderBoard(); updateStats();}
+
+function createCard(c){
+   const div = document.createElement("div");
+   div.className = `card ${c.priority.toLowerCase()}`;
+   div.draggable = true;
+   div.dataset.id = c.id;
+   div.innerHTML = `
+<img src="${c.image}" alt="Фото проблемы">
+<strong>${c.category}</strong>
+<div>${c.description}</div>
+<div>Приоритет:
+<select onchange="setPriority(${c.id}, this.value)">
+<option value="Low" ${c.priority==="Low"?"selected":""}>Low</option>
+<option value="Medium" ${c.priority==="Medium"?"selected":""}>Medium</option>
+<option value="High" ${c.priority==="High"?"selected":""}>High</option>
+</select>
+</div>
+<div>Статус:
+<select onchange="setStatus(${c.id}, this.value)">
+<option value="new" ${c.status==="new"?"selected":""}>Новые</option>
+<option value="inProgress" ${c.status==="inProgress"?"selected":""}>В процессе</option>
+<option value="done" ${c.status==="done"?"selected":""}>Выполнено</option>
+</select>
+</div>
+<div>Направить:
+<select class="destination" onchange="setDestination(${c.id}, this.value)">
+<option value="ЖКХ" ${c.destination==="ЖКХ"?"selected":""}>ЖКХ</option>
+<option value="Дорожники" ${c.destination==="Дорожники"?"selected":""}>Дорожники</option>
+<option value="Горводоканал" ${c.destination==="Горводоканал"?"selected":""}>Горводоканал</option>
+<option value="Другое" ${c.destination==="Другое"?"selected":""}>Другое</option>
+</select>
+</div>
+   `;
+   div.addEventListener('dragstart', ()=>div.classList.add('dragging'));
+   div.addEventListener('dragend', ()=>div.classList.remove('dragging'));
+   return div;
+}
+
+function renderBoard(){
+   const newCol = document.getElementById("newColumn");
+   const progressCol = document.getElementById("inProgressColumn");
+   const doneCol = document.getElementById("doneColumn");
+   newCol.innerHTML="<h3>Новые</h3>";
+   progressCol.innerHTML="<h3>В процессе</h3>";
+   doneCol.innerHTML="<h3>Выполнено</h3>";
+
+   const filtered = complaints.filter(c=>{
+       const statusF = document.getElementById("filterStatus").value;
+       const priorityF = document.getElementById("filterPriority").value;
+       const categoryF = document.getElementById("filterCategory").value;
+       return (!statusF||c.status===statusF) &&
+              (!priorityF||c.priority===priorityF) &&
+              (!categoryF||c.category===categoryF);
+   });
+
+   filtered.forEach(c=>{
+       const card = createCard(c);
+       if(c.status==="new") newCol.appendChild(card);
+       else if(c.status==="inProgress") progressCol.appendChild(card);
+       else doneCol.appendChild(card);
+   });
+}
+
+
+document.querySelectorAll('.column').forEach(col=>{
+   col.addEventListener('dragover', e=>{
+       e.preventDefault();
+       const dragging = document.querySelector('.dragging');
+       col.appendChild(dragging);
+   });
+   col.addEventListener('drop', ()=>{
+       const dragging = document.querySelector('.dragging');
+       const id = parseInt(dragging.dataset.id);
+       const c = complaints.find(x=>x.id===id);
+       if(col.id==="newColumn") c.status="new";
+       else if(col.id==="inProgressColumn") c.status="inProgress";
+       else c.status="done";
+       saveData();
+   });
+});
+
+
+function setPriority(id,value){ const c = complaints.find(x=>x.id===id); if(c){c.priority=value; saveData();} }
+function setStatus(id,value){ const c = complaints.find(x=>x.id===id); if(c){c.status=value; saveData();} }
+function setDestination(id,value){ const c = complaints.find(x=>x.id===id); if(c){c.destination=value; saveData();} }
+
+
+document.getElementById("filterStatus").addEventListener('change',renderBoard);
+document.getElementById("filterPriority").addEventListener('change',renderBoard);
+document.getElementById("filterCategory").addEventListener('change',renderBoard);
+
+
+function updateStats(){
+   document.getElementById("statNew").innerText = complaints.filter(c=>c.status==="new").length;
+   document.getElementById("statProgress").innerText = complaints.filter(c=>c.status==="inProgress").length;
+   document.getElementById("statDone").innerText = complaints.filter(c=>c.status==="done").length;
+   document.getElementById("statHigh").innerText = complaints.filter(c=>c.priority==="High").length;
+   document.getElementById("statMedium").innerText = complaints.filter(c=>c.priority==="Medium").length;
+   document.getElementById("statLow").innerText = complaints.filter(c=>c.priority==="Low").length;
+}
+
+renderBoard();
+updateStats();
+</script>
+</body>
+</html>
 
