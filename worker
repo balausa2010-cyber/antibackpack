@@ -1,308 +1,396 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SmartQala — Полевой сотрудник</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SmartQala — Полевой сотрудник PRO</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+ 
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+ 
 
 <style>
-body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    background: #102940;
-    color: white;
+:root{
+--bg:#f4f9ff;
+--accent:#4DA6FF;
+--dark:#1E88E5;
+--danger:#E74C3C;
+--medium:#F39C12;
+--low:#2ECC71;
 }
-
-.container {
-    max-width: 1100px;
-    margin: 40px auto;
-    padding: 20px;
+*{box-sizing:border-box;font-family:Inter,sans-serif;}
+body{margin:0;background:var(--bg);}
+header{
+background:white;
+padding:20px 40px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 4px 12px rgba(0,0,0,0.05);
 }
-
-h2 {
-    font-family: 'Playfair Display', serif;
-    color: #E1BD72;
+.logo{font-weight:800;color:var(--dark);}
+.container{padding:40px;}
+.grid{
+display:grid;
+grid-template-columns:2fr 1fr;
+gap:30px;
 }
-
-.card {
-    background: #184467;
-    padding: 25px;
-    border-radius: 18px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    margin-bottom: 30px;
-    border-left: 6px solid #E1BD72;
+.card{
+background:white;
+padding:20px;
+border-radius:16px;
+box-shadow:0 8px 24px rgba(0,0,0,0.06);
+margin-bottom:20px;
 }
-
-.card h3 {
-    color: #E1BD72;
-    margin-top: 0;
+.task{
+padding:12px;
+border-left:6px solid;
+border-radius:10px;
+margin-bottom:10px;
+cursor:pointer;
 }
-
-.badge {
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
+.high{border-color:var(--danger);}
+.medium{border-color:var(--medium);}
+.low{border-color:var(--low);}
+button{
+padding:10px 15px;
+border:none;
+border-radius:10px;
+background:var(--dark);
+color:white;
+cursor:pointer;
+margin-top:8px;
 }
-
-.badge-high { 
-    background:#E74C3C; 
-    color:white; 
-}
-
-.badge-medium { 
-    background:#E1BD72; 
-    color:#102940; 
-}
-
-.badge-low { 
-    background:#2ECC71; 
-    color:white; 
-}
-
-.button {
-    padding: 10px 14px;
-    border-radius: 12px;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-    margin: 5px 5px 5px 0;
-    transition: 0.3s;
-}
-
-.button-primary {
-    background: #E1BD72;
-    color: #102940;
-}
-
-.button-primary:hover {
-    background: #f3d289;
-}
-
-.button-gold {
-    background: linear-gradient(90deg, #E1BD72, #f3d289);
-    color: #102940;
-}
-
-.button-danger {
-    background:#E74C3C;
-    color:white;
-}
-
-.progress {
-    width:100%;
-    height:8px;
-    background:#102940;
-    border-radius:6px;
-    margin-top:10px;
-}
-
-.progress-bar {
-    height:100%;
-    width:0%;
-    background:#E1BD72;
-    border-radius:6px;
-    transition:0.4s;
-}
-
-input, select, textarea {
-    width:100%;
-    padding:10px;
-    border-radius:10px;
-    border:1px solid #E1BD72;
-    background:#102940;
-    color:white;
-    margin-bottom:10px;
-}
-
-#map {
-    height: 350px;
-    border-radius: 15px;
-    overflow: hidden;
-}
-
+#map{height:300px;border-radius:14px;margin-top:10px;}
+.timer{font-size:20px;font-weight:600;margin:10px 0;}
+.kpi{font-size:28px;font-weight:800;color:var(--dark);}
+input{width:100%;margin:6px 0;}
 </style>
 </head>
-
 <body>
 
+ 
+
+<header>
+<div class="logo">SmartQala — Полевой сотрудник</div>
+<div id="employeeInfo"></div>
+</header>
+
+ 
+
 <div class="container">
-<h2>SmartQala — Полевой сотрудник</h2>
+
+ 
+
+<div class="grid">
+
+ 
+
+
+<div>
+
+ 
 
 <div class="card">
-<h3>Список задач</h3>
+<h3>📋 Активные задачи</h3>
 <div id="taskList"></div>
+<button onclick="addNewTask()">➕ Добавить новую задачу</button>
 </div>
 
-<div class="card">
-<h3>KPI сотрудника</h3>
-<div id="kpiText"></div>
-<div class="progress">
-<div class="progress-bar" id="kpiBar"></div>
-</div>
-</div>
+ 
 
 <div class="card">
-<h3>Карта навигации</h3>
+<h3>🗺 Навигация</h3>
 <div id="map"></div>
+<button onclick="buildRoute()">Проложить маршрут</button>
 </div>
+
+ 
 
 <div class="card">
-<h3>Отчёт за день</h3>
-<button class="button button-primary" onclick="submitDailyReport()">Сформировать отчёт</button>
-<div id="dailyReport"></div>
+<h3>⏱ Выполнение</h3>
+<div class="timer" id="timer">00:00:00</div>
+
+ 
+
+<label>Фото ДО:</label>
+<input type="file" id="beforePhoto" accept="image/*">
+
+ 
+
+<label>Фото ПОСЛЕ:</label>
+<input type="file" id="afterPhoto" accept="image/*">
+
+ 
+
+<button onclick="startTask()">Начать</button>
+<button onclick="finishTask()">Завершить</button>
 </div>
 
+ 
+
 </div>
+
+
+<div>
+
+ 
+
+<div class="card">
+<h3>⭐ KPI</h3>
+<div class="kpi" id="kpi">0%</div>
+<p>Выполнено сегодня: <span id="todayCount">0</span></p>
+</div>
+
+ 
+
+<div class="card">
+<h3>✅ Завершённые задачи</h3>
+<div id="completedTasks"></div>
+</div>
+
+ 
+
+</div>
+
+ 
+
+</div>
+</div>
+
+ 
 
 <script>
 
-// ====== ДАННЫЕ ======
-let tasks = [
-{ id:1, title:"Освещение — ул. Абая", priority:"High", lat:50.4111, lon:80.2275, completed:false, time:0 },
-{ id:2, title:"Яма — район Центр", priority:"Medium", lat:50.417, lon:80.23, completed:false, time:0 },
-{ id:3, title:"Мусор — парк", priority:"Low", lat:50.42, lon:80.25, completed:false, time:0 }
+
+ 
+
+let tasks = JSON.parse(localStorage.getItem("activeTasks")) || [
+{id:1,title:"Яма на дороге",priority:"high",lat:50.4111,lng:80.2275,sla:60,status:"new"},
+{id:2,title:"Освещение",priority:"medium",lat:50.415,lng:80.22,sla:120,status:"new"}
 ];
 
-let timerInterval = null;
-let activeTask = null;
+ 
 
-// ====== КАРТА ======
-var map = L.map('map').setView([50.4111, 80.2275], 13);
+let completedTasks = JSON.parse(localStorage.getItem("completedTasks")) || [];
+
+ 
+
+let selectedTask = null;
+let startTime = null;
+let interval = null;
+
+
+ 
+
+const map = L.map('map').setView([50.4111,80.2275],13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
+ 
+
+let marker;
+let routeLayer;
+
+
+
+ 
+
+function renderTasks(){
+const container=document.getElementById("taskList");
+container.innerHTML="";
+
+ 
+
 tasks.forEach(t=>{
-    L.marker([t.lat,t.lon]).addTo(map)
-    .bindPopup(t.title);
+   const div=document.createElement("div");
+   div.className="task "+t.priority;
+   div.innerHTML=`
+<strong>${t.title}</strong><br>
+     Приоритет: ${t.priority}<br>
+     SLA: ${t.sla} мин<br>
+     Статус: ${t.status}
+   `;
+   div.onclick=()=>selectTask(t);
+   container.appendChild(div);
 });
 
-// ====== ОТРИСОВКА ======
-function renderTasks(){
+ 
 
-    const container = document.getElementById("taskList");
-    container.innerHTML = "";
-
-    // сортировка по приоритету
-    const order = {High:1,Medium:2,Low:3};
-    tasks.sort((a,b)=>order[a.priority]-order[b.priority]);
-
-    tasks.forEach(task=>{
-
-        let badgeClass = task.priority=="High"?"badge-high":
-                         task.priority=="Medium"?"badge-medium":"badge-low";
-
-        let div = document.createElement("div");
-        div.className = "card";
-
-        div.innerHTML = `
-        <strong>${task.title}</strong>
-        <span class="badge ${badgeClass}">${task.priority}</span>
-        <div>Время: <span id="time${task.id}">${task.time}s</span></div>
-
-        <input type="file" onchange="savePhoto(event,${task.id},'before')">
-        <input type="file" onchange="savePhoto(event,${task.id},'after')">
-
-        <br>
-        <button class="button button-primary" onclick="startTimer(${task.id})">Старт</button>
-        <button class="button button-gold" onclick="navigate(${task.lat},${task.lon})">Навигация</button>
-        <button class="button button-danger" onclick="completeTask(${task.id})">Завершить</button>
-        `;
-
-        container.appendChild(div);
-    });
-
-    updateKPI();
+localStorage.setItem("activeTasks", JSON.stringify(tasks));
 }
 
-// ====== ТАЙМЕР ======
-function startTimer(id){
-    if(timerInterval) clearInterval(timerInterval);
-    activeTask = tasks.find(t=>t.id==id);
-
-    timerInterval = setInterval(()=>{
-        activeTask.time++;
-        document.getElementById("time"+id).innerText = activeTask.time+"s";
-    },1000);
-}
-
-// ====== ФОТО ======
-function savePhoto(e,id,type){
-    const task = tasks.find(t=>t.id==id);
-    task[type] = true;
-    alert("Фото "+type+" сохранено");
-}
-
-// ====== НАВИГАЦИЯ ======
-function navigate(lat,lon){
-    window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`);
-}
-
-// ====== ЗАВЕРШЕНИЕ ======
-function completeTask(id){
-
-    const task = tasks.find(t=>t.id==id);
-
-    if(!task.before || !task.after){
-        alert("Необходимо фото До и После!");
-        return;
-    }
-
-    if(task.time==0){
-        alert("Не зафиксировано время работы!");
-        return;
-    }
-
-    task.completed = true;
-    clearInterval(timerInterval);
-
-    sendReport(task);
-    alert("Отчёт отправлен автоматически!");
-
-    renderTasks();
-}
-
-// ====== ОТПРАВКА ОТЧЁТА ======
-function sendReport(task){
-    console.log("Отправка отчёта:",task);
-}
-
-// ====== KPI ======
-function updateKPI(){
-    let total = tasks.length;
-    let done = tasks.filter(t=>t.completed).length;
-    let photoScore = tasks.filter(t=>t.before && t.after).length / total;
-    let completionRate = done/total;
-
-    let score = Math.round((completionRate*0.5 + photoScore*0.5)*100);
-
-    document.getElementById("kpiText").innerText =
-    `Выполнено: ${done}/${total} | KPI: ${score}/100`;
-
-    document.getElementById("kpiBar").style.width = score+"%";
-}
-
-// ====== ДНЕВНОЙ ОТЧЁТ ======
-function submitDailyReport(){
-    let report = tasks.map(t=>({
-        title:t.title,
-        completed:t.completed,
-        time:t.time
-    }));
-
-    document.getElementById("dailyReport").innerText =
-    JSON.stringify(report,null,2);
-
-    console.log("Дневной отчёт:",report);
-}
+ 
 
 renderTasks();
 
-</script>
+ 
 
+function selectTask(task){
+selectedTask=task;
+if(marker) map.removeLayer(marker);
+marker=L.marker([task.lat,task.lng]).addTo(map);
+map.setView([task.lat,task.lng],15);
+}
+
+ 
+
+async function buildRoute(){
+if(!selectedTask){alert("Выберите задачу");return;}
+const url=`https://router.project-osrm.org/route/v1/driving/80.2275,50.4111,${selectedTask.lng},${selectedTask…
+const res=await fetch(url);
+const data=await res.json();
+if(routeLayer) map.removeLayer(routeLayer);
+routeLayer=L.geoJSON(data.routes[0].geometry).addTo(map);
+}
+
+ 
+
+function startTask(){
+if(!selectedTask){alert("Выберите задачу");return;}
+startTime=new Date();
+selectedTask.status="in_progress";
+interval=setInterval(()=>{
+   const sec=Math.floor((new Date()-startTime)/1000);
+   const h=String(Math.floor(sec/3600)).padStart(2,"0");
+   const m=String(Math.floor((sec%3600)/60)).padStart(2,"0");
+   const s=String(sec%60).padStart(2,"0");
+   document.getElementById("timer").innerText=`${h}:${m}:${s}`;
+},1000);
+renderTasks();
+}
+
+
+ 
+
+function finishTask(){
+const before=document.getElementById("beforePhoto").files[0];
+const after=document.getElementById("afterPhoto").files[0];
+if(!before||!after){alert("Фото обязательны");return;}
+if(!startTime){alert("Сначала начните задачу");return;}
+
+ 
+
+clearInterval(interval);
+
+ 
+
+const duration=(new Date()-startTime)/60000;
+
+ 
+
+const completed={
+   ...selectedTask,
+   duration:duration,
+   date:new Date().toLocaleDateString()
+};
+
+ 
+
+completedTasks.push(completed);
+
+ 
+
+tasks = tasks.filter(t=>t.id!==selectedTask.id);
+
+ 
+
+localStorage.setItem("activeTasks", JSON.stringify(tasks));
+localStorage.setItem("completedTasks", JSON.stringify(completedTasks));
+
+ 
+
+updateKPI();
+renderTasks();
+renderCompleted();
+
+ 
+
+selectedTask=null;
+startTime=null;
+document.getElementById("timer").innerText="00:00:00";
+document.getElementById("beforePhoto").value="";
+document.getElementById("afterPhoto").value="";
+if(marker) map.removeLayer(marker);
+
+ 
+
+alert("Задача завершена");
+}
+
+ 
+
+function renderCompleted(){
+const container=document.getElementById("completedTasks");
+container.innerHTML="";
+
+ 
+
+completedTasks.forEach(t=>{
+   const div=document.createElement("div");
+   div.style.borderBottom="1px solid #eee";
+   div.style.padding="8px 0";
+   div.innerHTML=`
+<strong>${t.title}</strong><br>
+     ⏱ ${t.duration.toFixed(1)} мин<br>
+     📅 ${t.date}
+   `;
+   container.prepend(div);
+});
+}
+
+ 
+
+renderCompleted();
+
+
+
+ 
+
+function updateKPI(){
+const today=new Date().toLocaleDateString();
+const todayTasks=completedTasks.filter(t=>t.date===today);
+document.getElementById("todayCount").innerText=todayTasks.length;
+
+ 
+
+let score=Math.min(todayTasks.length*20,100);
+document.getElementById("kpi").innerText=score+"%";
+}
+
+
+
+function addNewTask(){
+const id=Date.now();
+const newTask={
+   id:id,
+   title:"Новая задача "+id,
+   priority:["high","medium","low"][Math.floor(Math.random()*3)],
+   lat:50.41 + Math.random()/100,
+   lng:80.22 + Math.random()/100,
+   sla:60,
+   status:"new"
+};
+tasks.push(newTask);
+renderTasks();
+}
+
+ 
+
+updateKPI();
+
+ 
+
+</script>
 </body>
 </html>
+
+ 
+
+ 
+
+
 
