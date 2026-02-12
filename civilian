@@ -4,11 +4,11 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>SmartQala — Цифровой город</title>
- 
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
- 
+
 <style>
 :root{
     --bg:#f4f9ff;
@@ -17,10 +17,8 @@
     --danger:#E74C3C;
     --text:#0F2A43;
 }
- 
 *{box-sizing:border-box;font-family:Inter,sans-serif;}
 body{margin:0;background:var(--bg);color:var(--text);}
- 
 header{
     background:white;
     padding:20px 60px;
@@ -32,98 +30,22 @@ header{
     top:0;
     z-index:100;
 }
- 
-.logo{
-    font-weight:800;
-    font-size:22px;
-    color:var(--accent-dark);
-}
- 
-nav{
-    display:flex;
-    gap:25px;
-}
- 
-nav button{
-    background:none;
-    border:none;
-    font-size:15px;
-    font-weight:500;
-    cursor:pointer;
-}
- 
-nav button.active{
-    color:var(--accent-dark);
-    font-weight:700;
-}
- 
-
-.hero{
-    padding:100px 60px;
-    background:linear-gradient(120deg,#4DA6FF,#1E88E5);
-    color:white;
-}
- 
+.logo{font-weight:800;font-size:22px;color:var(--accent-dark);}
+nav{display:flex;gap:25px;}
+nav button{background:none;border:none;font-size:15px;font-weight:500;cursor:pointer;}
+nav button.active{color:var(--accent-dark);font-weight:700;}
+.hero{padding:100px 60px;background:linear-gradient(120deg,#4DA6FF,#1E88E5);color:white;}
 .hero h1{font-size:44px;margin:0 0 20px 0;}
 .hero p{max-width:650px;font-size:18px;opacity:0.95;}
- 
 .section{display:none;padding:60px;min-height:80vh;}
 .section.active{display:block;}
- 
-.grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-    gap:30px;
-}
- 
-.card{
-    background:white;
-    padding:30px;
-    border-radius:18px;
-    box-shadow:0 8px 24px rgba(0,0,0,0.06);
-    margin-bottom:20px;
-}
- 
-.list-item{
-    display:flex;
-    justify-content:space-between;
-    padding:12px 0;
-    border-bottom:1px solid #eee;
-}
- 
-.notification{
-    padding:15px;
-    background:#fff;
-    border-left:5px solid #E1BD72;
-    border-radius:12px;
-    margin-bottom:15px;
-}
- 
-.emergency-box{
-    padding:25px;
-    border-radius:18px;
-    background:#fff4f4;
-    border-left:6px solid var(--danger);
-}
- 
-button.primary{
-    background:var(--accent-dark);
-    color:white;
-    padding:12px 20px;
-    border:none;
-    border-radius:12px;
-    margin-top:15px;
-    cursor:pointer;
-}
- 
-footer{
-    background:white;
-    padding:30px 60px;
-    text-align:center;
-    font-size:14px;
-    color:#666;
-}
- 
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:30px;}
+.card{background:white;padding:30px;border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,0.06);margin-bottom:20px;}
+.list-item{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #eee;}
+.notification{padding:15px;background:#fff;border-left:5px solid #E1BD72;border-radius:12px;margin-bottom:15px;}
+.emergency-box{padding:25px;border-radius:18px;background:#fff4f4;border-left:6px solid var(--danger);}
+button.primary{background:var(--accent-dark);color:white;padding:12px 20px;border:none;border-radius:12px;margin-top:15px;cursor:pointer;}
+footer{background:white;padding:30px 60px;text-align:center;font-size:14px;color:#666;}
 @media(max-width:768px){
     header{padding:20px;}
     .hero{padding:60px 20px;}
@@ -133,401 +55,259 @@ footer{
 </style>
 </head>
 <body>
- 
+
 <header>
-<div class="logo">SmartQala</div>
-<nav>
-<button onclick="showTab(event,'home')" class="active">Главная</button>
-<button onclick="showTab(event,'profile')">Профиль</button>
-<button onclick="showTab(event,'complaints')">Обращения</button>
-<button onclick="showTab(event,'notifications')">Уведомления</button>
-<button onclick="showTab(event,'emergency')">Emergency</button>
-<button onclick="showTab(event,'voting')">Голосование</button>
-</nav>
+    <div class="logo">SmartQala</div>
+    <nav>
+        <button onclick="showTab(event,'home')" class="active" data-lang-key="home">Главная</button>
+        <button onclick="showTab(event,'profile')" data-lang-key="profile">Профиль</button>
+        <button onclick="showTab(event,'complaints')" data-lang-key="complaints">Обращения</button>
+        <button onclick="showTab(event,'notifications')" data-lang-key="notifications">Уведомления</button>
+        <button onclick="showTab(event,'emergency')" data-lang-key="emergency">Emergency</button>
+        <button onclick="showTab(event,'voting')" data-lang-key="voting">Голосование</button>
+        <select id="langSelect" style="margin-left:20px;padding:5px;">
+            <option value="ru">RU</option>
+            <option value="kz">KZ</option>
+            <option value="en">EN</option>
+        </select>
+    </nav>
 </header>
- 
 
 <section id="home" class="section active">
-<div class="hero">
-<h1>Цифровой город будущего</h1>
-<p>
-            SmartQala — единая платформа для обращения граждан, мониторинга городской среды
-            и экстренного информирования.
-</p>
-</div>
- 
+    <div class="hero">
+        <h1 data-lang-key="heroTitle">Цифровой город будущего</h1>
+        <p data-lang-key="heroText">SmartQala — единая платформа для обращения граждан, мониторинга городской среды и экстренного информирования.</p>
+    </div>
+
     <div class="grid" style="margin-top:40px;">
-<div class="card">
-<h3>📩 24/7 Обращения</h3>
-<p>Сообщайте о проблемах города в любое время.</p>
-</div>
-<div class="card">
-<h3>📊 Прозрачность</h3>
-<p>Отслеживайте статус ваших заявок и этапы обработки.</p>
-</div>
-<div class="card">
-<h3>🚨 Безопасность</h3>
-<p>Получайте экстренные уведомления в реальном времени.</p>
-</div>
-</div>
+        <div class="card">
+            <h3 data-lang-key="card1Title">📩 24/7 Обращения</h3>
+            <p data-lang-key="card1Text">Сообщайте о проблемах города в любое время.</p>
+        </div>
+        <div class="card">
+            <h3 data-lang-key="card2Title">📊 Прозрачность</h3>
+            <p data-lang-key="card2Text">Отслеживайте статус ваших заявок и этапы обработки.</p>
+        </div>
+        <div class="card">
+            <h3 data-lang-key="card3Title">🚨 Безопасность</h3>
+            <p data-lang-key="card3Text">Получайте экстренные уведомления в реальном времени.</p>
+        </div>
+    </div>
 </section>
- 
 
 <section id="profile" class="section">
-<div class="card">
-<h2>Личный профиль</h2>
-<p><strong>ФИО:</strong> Аида Оралбекова</p>
-<p><strong>ИИН:</strong> 990101123456</p>
-<p><strong>Телефон:</strong> +7 707 123 45 67</p>
-<p><strong>eGov:</strong> подтвержден</p>
-</div>
+    <div class="card">
+        <h2 data-lang-key="profileTitle">Личный профиль</h2>
+        <p><strong data-lang-key="nameLabel">ФИО:</strong> Аида Оралбекова</p>
+        <p><strong data-lang-key="iinLabel">ИИН:</strong> 990101123456</p>
+        <p><strong data-lang-key="phoneLabel">Телефон:</strong> +7 707 123 45 67</p>
+        <p><strong data-lang-key="egovLabel">eGov:</strong> подтвержден</p>
+    </div>
+    <div class="card">
+        <h2 data-lang-key="mapProblemsTitle">Проблемы района</h2>
+        <div id="profileMap" style="height:400px;border-radius:15px;"></div>
+    </div>
 </section>
- 
 
 <section id="complaints" class="section">
- 
     <div class="card">
-<h2>Подать обращение</h2>
- 
+        <h2 data-lang-key="complaintTitle">Подать обращение</h2>
         <form id="complaintForm">
- 
-            <label><strong>Категория:</strong></label><br><br>
-<select id="category" required style="width:100%;padding:12px;border-radius:10px;border:1px solid #ddd;">
-<option value="">Выберите проблему</option>
-<option>Ямы на дороге</option>
-<option>Не работает освещение</option>
-<option>Мусор во дворе</option>
-<option>Проблемы с транспортом</option>
-<option>Нет отопления</option>
-<option>Проблемы с водой</option>
-<option>Заторы и пробки</option>
-<option>Плохое состояние тротуаров</option>
-<option>Не работают светофоры</option>
-<option>Повреждена детская площадка</option>
-<option>Проблемы с парковкой</option>
-<option>Шум и загрязнение</option>
-<option>Неудобный доступ для людей с ограниченными возможностями</option>
-<option>Обрушения зданий</option>
-<option>Повреждение инфраструктуры</option>
-<option>Заброшенные территории</option>
-<option>Другое</option>
-</select>
- 
+            <label data-lang-key="categoryLabel"><strong>Категория:</strong></label><br><br>
+            <select id="category" required style="width:100%;padding:12px;border-radius:10px;border:1px solid #ddd;">
+                <option value="">Выберите проблему</option>
+                <option>Ямы на дороге</option>
+                <option>Не работает освещение</option>
+                <option>Мусор во дворе</option>
+                <option>Проблемы с транспортом</option>
+                <option>Нет отопления</option>
+                <option>Проблемы с водой</option>
+                <option>Заторы и пробки</option>
+                <option>Плохое состояние тротуаров</option>
+                <option>Не работают светофоры</option>
+                <option>Повреждена детская площадка</option>
+                <option>Проблемы с парковкой</option>
+                <option>Шум и загрязнение</option>
+                <option>Неудобный доступ для людей с ограниченными возможностями</option>
+                <option>Обрушения зданий</option>
+                <option>Повреждение инфраструктуры</option>
+                <option>Заброшенные территории</option>
+                <option>Другое</option>
+            </select>
             <br><br>
- 
-            <!-- Поле для ручного ввода своей проблемы -->
-<div id="manualProblemDiv" style="display:none; margin-bottom:15px;">
-<label><strong>Укажите свою проблему:</strong></label><br>
-<input type="text" id="manualProblem" placeholder="Напишите проблему" 
-                       style="width:100%;padding:12px;border-radius:10px;border:1px solid #ddd;">
-</div>
- 
+            <div id="manualProblemDiv" style="display:none; margin-bottom:15px;">
+                <label data-lang-key="manualLabel"><strong>Укажите свою проблему:</strong></label><br>
+                <input type="text" id="manualProblem" placeholder="Напишите проблему" style="width:100%;padding:12px;border-radius:10px;border:1px solid #ddd;">
+            </div>
             <div id="selectedProblem" style="margin-bottom:15px;font-weight:600;"></div>
- 
-            <label><strong>Адрес (улица, дом):</strong></label><br><br>
-<input type="text" id="address" required
-                   placeholder="Например: ул. Абая, 25"
-                   style="width:100%;padding:12px;border-radius:10px;border:1px solid #ddd;">
- 
+            <label data-lang-key="addressLabel"><strong>Адрес (улица, дом):</strong></label><br><br>
+            <input type="text" id="address" required placeholder="Например: ул. Абая, 25" style="width:100%;padding:12px;border-radius:10px;border:1px solid #ddd;">
             <br><br>
- 
-            <label><strong>Отметьте точку на карте:</strong></label>
-<div id="map" style="height:300px;border-radius:15px;margin-top:15px;"></div>
- 
+            <label data-lang-key="mapLabel"><strong>Отметьте точку на карте:</strong></label>
+            <div id="map" style="height:300px;border-radius:15px;margin-top:15px;"></div>
             <br>
- 
-            <label><strong>Описание:</strong></label>
-<textarea id="description" rows="4" required
-                      style="width:100%;padding:12px;border-radius:10px;border:1px solid #ddd;"
-                      placeholder="Опишите проблему"></textarea>
- 
+            <label data-lang-key="descLabel"><strong>Описание:</strong></label>
+            <textarea id="description" rows="4" required style="width:100%;padding:12px;border-radius:10px;border:1px solid #ddd;" placeholder="Опишите проблему"></textarea>
             <br><br>
-<button type="submit" class="primary">Отправить</button>
-</form>
-</div>
- 
+            <button type="submit" class="primary" data-lang-key="sendBtn">Отправить</button>
+        </form>
+    </div>
     <div class="card">
-<h2>История обращений</h2>
-<div id="history"></div>
-</div>
- 
+        <h2 data-lang-key="historyTitle">История обращений</h2>
+        <div id="history"></div>
+    </div>
 </section>
- 
 
 <section id="notifications" class="section">
-<div class="card">
-<h2>Уведомления</h2>
-<div id="notificationList"></div>
-</div>
+    <div class="card">
+        <h2 data-lang-key="notificationsTitle">Уведомления</h2>
+        <div id="notificationList"></div>
+    </div>
 </section>
- 
 
 <section id="emergency" class="section">
-<div class="card emergency-box">
-<h2>🚨 Экстренная информация</h2>
-<div id="weatherInfo">Загрузка актуальных данных...</div>
-<div id="dangerLevel" style="margin-top:10px;font-weight:600;"></div>
-</div>
+    <div class="card emergency-box">
+        <h2 data-lang-key="emergencyTitle">🚨 Экстренная информация</h2>
+        <div id="weatherInfo">Загрузка актуальных данных...</div>
+        <div id="dangerLevel" style="margin-top:10px;font-weight:600;"></div>
+    </div>
 </section>
- 
 
 <section id="voting" class="section">
-<div class="card">
-<h2>🏛 Голосование за актуальные проблемы города</h2>
- 
-        <form id="votingForm">
-<label><strong>Выберите проблему:</strong></label><br><br>
-<select id="voteCategory" required style="width:100%;padding:12px;border-radius:10px;border:1px solid #ddd;">
-<option value="">Выберите проблему</option>
-<option>Ямы на дороге</option>
-<option>Не работает освещение</option>
-<option>Мусор во дворе</option>
-<option>Проблемы с транспортом</option>
-<option>Нет отопления</option>
-<option>Проблемы с водой</option>
-<option>Заторы и пробки</option>
-<option>Плохое состояние тротуаров</option>
-<option>Не работают светофоры</option>
-<option>Повреждена детская площадка</option>
-<option>Проблемы с парковкой</option>
-<option>Шум и загрязнение</option>
-<option>Неудобный доступ для людей с ограниченными возможностями</option>
-<option>Обрушения зданий</option>
-<option>Повреждение инфраструктуры</option>
-<option>Заброшенные территории</option>
-<option>Другое</option>
-</select>
- 
-            <br><br>
-<button type="submit" class="primary">Проголосовать</button>
-</form>
-</div>
- 
     <div class="card">
-<h2>Статистика голосования</h2>
-<div id="voteStats"></div>
-</div>
+        <h2 data-lang-key="votingTitle">🏛 Голосование за актуальные проблемы города</h2>
+        <form id="votingForm">
+            <label data-lang-key="voteLabel"><strong>Выберите проблему:</strong></label><br><br>
+            <select id="voteCategory" required style="width:100%;padding:12px;border-radius:10px;border:1px solid #ddd;">
+                <option value="">Выберите проблему</option>
+                <option>Ямы на дороге</option>
+                <option>Не работает освещение</option>
+                <option>Мусор во дворе</option>
+                <option>Проблемы с транспортом</option>
+                <option>Нет отопления</option>
+                <option>Проблемы с водой</option>
+                <option>Заторы и пробки</option>
+                <option>Плохое состояние тротуаров</option>
+                <option>Не работают светофоры</option>
+                <option>Повреждена детская площадка</option>
+                <option>Проблемы с парковкой</option>
+                <option>Шум и загрязнение</option>
+                <option>Неудобный доступ для людей с ограниченными возможностями</option>
+                <option>Обрушения зданий</option>
+                <option>Повреждение инфраструктуры</option>
+                <option>Заброшенные территории</option>
+                <option>Другое</option>
+            </select>
+            <br><br>
+            <label data-lang-key="districtLabel"><strong>Выберите район:</strong></label><br><br>
+            <select id="voteDistrict" style="width:100%;padding:12px;border-radius:10px;border:1px solid #ddd;">
+                <option value="">Выберите район</option>
+                <option>Мирный</option>
+                <option>Восточный Левый</option>
+                <option>Восточный Правый</option>
+                <option>Согра</option>
+                <option>Птичник</option>
+                <option>Грязнуха</option>
+                <option>Большой</option>
+                <option>Мурат</option>
+                <option>Водный</option>
+                <option>Бобровка</option>
+                <option>Промышленные зоны</option>
+                <option>Природные и рекреационные зоны</option>
+            </select>
+            <br><br>
+            <button type="submit" class="primary" data-lang-key="voteBtn">Проголосовать</button>
+        </form>
+    </div>
+    <div class="card">
+        <h2 data-lang-key="voteStatsTitle">Статистика голосования</h2>
+        <div id="voteStats"></div>
+    </div>
 </section>
- 
+
 <footer>
 © 2026 SmartQala — Digital City Platform
 </footer>
- 
+
 <script>
-function showTab(event,id){
+function showTab(e,id){
     document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
     document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
     document.getElementById(id).classList.add("active");
-    event.target.classList.add("active");
+    e.target.classList.add("active");
+    setTimeout(()=>{ if(map) map.invalidateSize(); if(profileMap) profileMap.invalidateSize(); },100);
 }
- 
 
-function renderHistory(){
-    const history = JSON.parse(localStorage.getItem("history")) || [];
-    const container = document.getElementById("history");
-    container.innerHTML="";
- 
-    history.forEach(item=>{
-        const div=document.createElement("div");
-        div.className="card";
-        div.innerHTML=`
-<strong>${item.category}</strong><br>
-            📍 ${item.address}<br>
-            🗓 ${item.date}<br>
-            📝 ${item.description}<br>
-            🧭 Координаты: [${item.lat.toFixed(5)}, ${item.lng.toFixed(5)}]
-        `;
-        container.prepend(div);
+const translations={
+    ru:{home:"Главная", profile:"Профиль", complaints:"Обращения", notifications:"Уведомления", emergency:"Emergency", voting:"Голосование", heroTitle:"Цифровой город будущего", heroText:"SmartQala — единая платформа для обращения граждан, мониторинга городской среды и экстренного информирования.", card1Title:"📩 24/7 Обращения", card1Text:"Сообщайте о проблемах города в любое время.", card2Title:"📊 Прозрачность", card2Text:"Отслеживайте статус ваших заявок и этапы обработки.", card3Title:"🚨 Безопасность", card3Text:"Получайте экстренные уведомления в реальном времени.", profileTitle:"Личный профиль", mapProblemsTitle:"Проблемы района", complaintTitle:"Подать обращение", categoryLabel:"Категория:", manualLabel:"Укажите свою проблему:", addressLabel:"Адрес (улица, дом):", mapLabel:"Отметьте точку на карте:", descLabel:"Описание:", sendBtn:"Отправить", historyTitle:"История обращений", notificationsTitle:"Уведомления", emergencyTitle:"🚨 Экстренная информация", votingTitle:"🏛 Голосование за актуальные проблемы города", voteLabel:"Выберите проблему:", districtLabel:"Выберите район:", voteBtn:"Проголосовать", voteStatsTitle:"Статистика голосования"},
+    kz:{home:"Басты бет", profile:"Профиль", complaints:"Мөрдеулер", notifications:"Хабарламалар", emergency:"Төтенше жағдай", voting:"Дауыс беру", heroTitle:"Болашақ сандық қаласы", heroText:"SmartQala — азаматтық өтініштерді беру, қалалық ортаны бақылау және төтенше хабарламалар үшін біріккен платформа.", card1Title:"📩 24/7 Мөрдеулер", card1Text:"Қаладағы мәселелерді кез келген уақытта хабарлаңыз.", card2Title:"📊 Ашықтық", card2Text:"Өтініштеріңіздің мәртебесін қадағалаңыз және өңдеу кезеңдерін бақылаңыз.", card3Title:"🚨 Қауіпсіздік", card3Text:"Науқандар туралы хабарламаларды нақты уақытта алыңыз.", profileTitle:"Жеке профиль", mapProblemsTitle:"Аудан мәселелері", complaintTitle:"Мөрдеу жіберу", categoryLabel:"Санат:", manualLabel:"Өз мәселені көрсетіңіз:", addressLabel:"Мекен-жай (көшe, үй):", mapLabel:"Картамен нүктені белгілеңіз:", descLabel:"Сипаттамасы:", sendBtn:"Жіберу", historyTitle:"Мөрдеулер тарихы", notificationsTitle:"Хабарламалар", emergencyTitle:"🚨 Төтенше ақпарат", votingTitle:"🏛 Қаладағы өзекті мәселелер бойынша дауыс беру", voteLabel:"Мәселені таңдаңыз:", districtLabel:"Ауданды таңдаңыз:", voteBtn:"Дауыс беру", voteStatsTitle:"Дауыс беру статистикасы"},
+    en:{home:"Home", profile:"Profile", complaints:"Complaints", notifications:"Notifications", emergency:"Emergency", voting:"Voting", heroTitle:"Digital city of the future", heroText:"SmartQala — unified platform for citizen requests, city monitoring and emergency notifications.", card1Title:"📩 24/7 Complaints", card1Text:"Report city problems anytime.", card2Title:"📊 Transparency", card2Text:"Track your requests and processing stages.", card3Title:"🚨 Safety", card3Text:"Receive emergency alerts in real time.", profileTitle:"Personal Profile", mapProblemsTitle:"District Issues", complaintTitle:"Submit a complaint", categoryLabel:"Category:", manualLabel:"Specify your problem:", addressLabel:"Address (street, house):", mapLabel:"Mark a point on the map:", descLabel:"Description:", sendBtn:"Send", historyTitle:"Complaint history", notificationsTitle:"Notifications", emergencyTitle:"🚨 Emergency Information", votingTitle:"🏛 Voting for relevant city problems", voteLabel:"Select a problem:", districtLabel:"Select district:", voteBtn:"Vote", voteStatsTitle:"Voting statistics"}
+};
+
+function updateLanguage(lang){
+    document.querySelectorAll("[data-lang-key]").forEach(el=>{
+        let key=el.getAttribute("data-lang-key");
+        if(translations[lang][key]) el.innerText=translations[lang][key];
+        if(el.placeholder && translations[lang][key]) el.placeholder=translations[lang][key];
     });
 }
-renderHistory();
- 
+document.getElementById("langSelect").addEventListener("change",e=>updateLanguage(e.target.value));
+updateLanguage("ru");
 
-let selectedLat = null;
-let selectedLng = null;
- 
-const categorySelect = document.getElementById("category");
-const manualProblemDiv = document.getElementById("manualProblemDiv");
-const manualProblemInput = document.getElementById("manualProblem");
-const selectedProblemDiv = document.getElementById("selectedProblem");
- 
-categorySelect.addEventListener("change", function(){
-    if(this.value === "Другое"){
-        manualProblemDiv.style.display = "block";
-        selectedProblemDiv.innerText = "Вы выбрали: Другое";
-    } else {
-        manualProblemDiv.style.display = "none";
-        selectedProblemDiv.innerText = "Вы выбрали: " + this.value;
-        manualProblemInput.value = "";
-    }
-});
- 
-manualProblemInput.addEventListener("input", function(){
-    selectedProblemDiv.innerText = "Вы выбрали: " + this.value;
-});
- 
-document.getElementById("complaintForm").addEventListener("submit", function(e){
-    e.preventDefault();
- 
-    let category = categorySelect.value;
-    if(category === "Другое"){
-        category = manualProblemInput.value.trim();
-        if(!category){
-            alert("Пожалуйста, укажите проблему в поле 'Другое'");
-            return;
-        }
-    }
- 
-    if(!selectedLat || !selectedLng){
-        alert("Пожалуйста, отметьте точку на карте!");
-        return;
-    }
- 
-    const newComplaint = {
-        category: category,
-        address: document.getElementById("address").value,
-        description: document.getElementById("description").value,
-        lat: selectedLat,
-        lng: selectedLng,
-        date: new Date().toLocaleDateString()
-    };
- 
-    const history = JSON.parse(localStorage.getItem("history")) || [];
-    history.push(newComplaint);
-    localStorage.setItem("history", JSON.stringify(history));
- 
-    const notifications = JSON.parse(localStorage.getItem("notifications")) || [];
-    notifications.push("Ваше обращение принято в обработку");
-    localStorage.setItem("notifications", JSON.stringify(notifications));
- 
-    alert("Обращение отправлено!");
-    this.reset();
-    manualProblemDiv.style.display="none";
-    selectedProblemDiv.innerText="";
-    selectedLat=null;
-    selectedLng=null;
-    if(marker) map.removeLayer(marker);
-    renderHistory();
-    renderNotifications();
-});
- 
-
-function renderNotifications(){
-    let notifications=JSON.parse(localStorage.getItem("notifications"));
-    const container=document.getElementById("notificationList");
-    container.innerHTML="";
- 
-    if(!notifications||notifications.length===0){
-        notifications=[
-            "Добро пожаловать в SmartQala!",
-            "Система мониторинга города активна"
-        ];
-        localStorage.setItem("notifications",JSON.stringify(notifications));
-    }
- 
-    notifications.forEach(text=>{
-        const div=document.createElement("div");
-        div.className="notification";
-        div.innerText=text;
-        container.prepend(div);
-    });
-}
-renderNotifications();
- 
-
-const map = L.map('map').setView([50.4111, 80.2275], 13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    attribution:'© OpenStreetMap'
-}).addTo(map);
- 
+let map = L.map('map').setView([50.416, 80.253], 13);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
 let marker;
-map.on('click', function(e){
-    selectedLat = e.latlng.lat;
-    selectedLng = e.latlng.lng;
- 
-    if(marker) map.removeLayer(marker);
-    marker = L.marker([selectedLat, selectedLng]).addTo(map);
+map.on('click',e=>{ if(marker) map.removeLayer(marker); marker=L.marker(e.latlng).addTo(map); });
+
+let profileMap = L.map('profileMap').setView([50.416, 80.253], 13);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(profileMap);
+L.marker([50.418,80.257]).bindPopup("Ямы на дороге").addTo(profileMap);
+L.marker([50.414,80.248]).bindPopup("Не работает освещение").addTo(profileMap);
+
+document.getElementById("category").addEventListener("change",e=>{
+    if(e.target.value==="Другое") document.getElementById("manualProblemDiv").style.display="block";
+    else document.getElementById("manualProblemDiv").style.display="none";
+    document.getElementById("selectedProblem").innerText=e.target.value;
 });
- 
 
-async function loadWeather(){
-    try{
-        const res=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=50.4111&longitude=80.2275&current_weather=true`);
-        const data=await res.json();
-        const w=data.current_weather;
- 
-        let dangerText="";
-        let dangerLevel="🟢 Низкий риск";
- 
-        if(w.temperature<=-25){
-            dangerText="❄ Экстремально низкая температура!";
-            dangerLevel="🔴 Высокий риск";
-        } else if(w.temperature>=35){
-            dangerText="🔥 Аномальная жара!";
-            dangerLevel="🔴 Высокий риск";
-        } else if(w.windspeed>=40){
-            dangerText="💨 Сильный ветер!";
-            dangerLevel="🟠 Средний риск";
-        } else{
-            dangerText="Погодные условия стабильные.";
-        }
- 
-        document.getElementById("weatherInfo").innerHTML=
-            `🌡 ${w.temperature}°C | 💨 ${w.windspeed} км/ч<br><br>${dangerText}`;
-        document.getElementById("dangerLevel").innerText=dangerLevel;
- 
-    }catch{
-        document.getElementById("weatherInfo").innerText="Ошибка загрузки данных";
-        document.getElementById("dangerLevel").innerText="";
-    }
-}
- 
-loadWeather();
-setInterval(loadWeather,600000);
- 
-
-function renderVoteStats(){
-    const votes = JSON.parse(localStorage.getItem("votes")) || [];
-    const container = document.getElementById("voteStats");
-    container.innerHTML = "";
- 
-    if(votes.length === 0){
-        container.innerHTML = "Пока никто не голосовал.";
-        return;
-    }
- 
-    const tally = {};
-    votes.forEach(v=>{
-        if(tally[v.category]) tally[v.category]++;
-        else tally[v.category]=1;
-    });
- 
-    for(const [cat,count] of Object.entries(tally)){
-        const div = document.createElement("div");
-        div.style.padding="8px 0";
-        div.style.borderBottom="1px solid #eee";
-        div.innerText = `${cat}: ${count} голос(ов)`;
-        container.appendChild(div);
-    }
-}
- 
-document.getElementById("votingForm").addEventListener("submit", function(e){
+const historyList=[];
+document.getElementById("complaintForm").addEventListener("submit",e=>{
     e.preventDefault();
-    const category = document.getElementById("voteCategory").value;
-    if(!category){
-        alert("Выберите проблему для голосования");
-        return;
-    }
- 
-    const votes = JSON.parse(localStorage.getItem("votes")) || [];
-    votes.push({category:category});
-    localStorage.setItem("votes",JSON.stringify(votes));
-    alert("Ваш голос учтён!");
-    renderVoteStats();
+    let cat=document.getElementById("category").value;
+    let desc=document.getElementById("description").value;
+    let addr=document.getElementById("address").value;
+    let latlng=marker?`(${marker.getLatLng().lat.toFixed(3)},${marker.getLatLng().lng.toFixed(3)})`:'не выбрано';
+    historyList.push({cat,desc,addr,latlng});
+    renderHistory();
+    alert("Обращение отправлено!");
+    e.target.reset();
+    if(marker){map.removeLayer(marker); marker=null;}
 });
- 
-renderVoteStats();
+function renderHistory(){
+    document.getElementById("history").innerHTML=historyList.map(h=>`<div class="list-item"><strong>${h.cat}</strong> — ${h.desc} (${h.addr}) ${h.latlng}</div>`).join('');
+}
+
+const notifications=["Дорога на ул. Абая отремонтирована","Проблемы с освещением устранены"];
+document.getElementById("notificationList").innerHTML=notifications.map(n=>`<div class="notification">${n}</div>`).join('');
+
+document.getElementById("weatherInfo").innerText="Температура: -5°C, снег, ветер 4м/с";
+document.getElementById("dangerLevel").innerText="Уровень опасности: высокий";
+
+const votes={};
+document.getElementById("votingForm").addEventListener("submit",e=>{
+    e.preventDefault();
+    let prob=document.getElementById("voteCategory").value;
+    let district=document.getElementById("voteDistrict").value;
+    if(!prob||!district){alert("Выберите проблему и район"); return;}
+    let key=`${prob} — ${district}`;
+    votes[key]=votes[key]?votes[key]+1:1;
+    renderVotes();
+    alert("Ваш голос учтён!");
+});
+function renderVotes(){
+    document.getElementById("voteStats").innerHTML=Object.keys(votes).map(k=>`<div class="list-item">${k}: ${votes[k]}</div>`).join('');
+}
 </script>
- 
+
 </body>
 </html>
