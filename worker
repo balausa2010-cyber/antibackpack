@@ -5,13 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>SmartQala — Полевой сотрудник PRO</title>
 
- 
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
- 
 
 <style>
 :root{
@@ -71,29 +67,18 @@ margin-top:8px;
 input{width:100%;margin:6px 0;}
 </style>
 </head>
-<body>
 
- 
+<body>
 
 <header>
 <div class="logo">SmartQala — Полевой сотрудник</div>
 <div id="employeeInfo"></div>
 </header>
 
- 
-
 <div class="container">
-
- 
-
 <div class="grid">
 
- 
-
-
 <div>
-
- 
 
 <div class="card">
 <h3>📋 Активные задачи</h3>
@@ -101,44 +86,29 @@ input{width:100%;margin:6px 0;}
 <button onclick="addNewTask()">➕ Добавить новую задачу</button>
 </div>
 
- 
-
 <div class="card">
 <h3>🗺 Навигация</h3>
 <div id="map"></div>
 <button onclick="buildRoute()">Проложить маршрут</button>
 </div>
 
- 
-
 <div class="card">
 <h3>⏱ Выполнение</h3>
 <div class="timer" id="timer">00:00:00</div>
 
- 
-
 <label>Фото ДО:</label>
 <input type="file" id="beforePhoto" accept="image/*">
 
- 
-
 <label>Фото ПОСЛЕ:</label>
 <input type="file" id="afterPhoto" accept="image/*">
-
- 
 
 <button onclick="startTask()">Начать</button>
 <button onclick="finishTask()">Завершить</button>
 </div>
 
- 
-
 </div>
 
-
 <div>
-
- 
 
 <div class="card">
 <h3>⭐ KPI</h3>
@@ -146,88 +116,56 @@ input{width:100%;margin:6px 0;}
 <p>Выполнено сегодня: <span id="todayCount">0</span></p>
 </div>
 
- 
-
 <div class="card">
 <h3>✅ Завершённые задачи</h3>
 <div id="completedTasks"></div>
 </div>
 
- 
-
 </div>
-
- 
 
 </div>
 </div>
-
- 
 
 <script>
-
-
- 
 
 let tasks = JSON.parse(localStorage.getItem("activeTasks")) || [
 {id:1,title:"Яма на дороге",priority:"high",lat:50.4111,lng:80.2275,sla:60,status:"new"},
 {id:2,title:"Освещение",priority:"medium",lat:50.415,lng:80.22,sla:120,status:"new"}
 ];
 
- 
-
 let completedTasks = JSON.parse(localStorage.getItem("completedTasks")) || [];
-
- 
 
 let selectedTask = null;
 let startTime = null;
 let interval = null;
 
-
- 
-
 const map = L.map('map').setView([50.4111,80.2275],13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
- 
 
 let marker;
 let routeLayer;
 
-
-
- 
-
 function renderTasks(){
 const container=document.getElementById("taskList");
 container.innerHTML="";
-
- 
 
 tasks.forEach(t=>{
    const div=document.createElement("div");
    div.className="task "+t.priority;
    div.innerHTML=`
 <strong>${t.title}</strong><br>
-     Приоритет: ${t.priority}<br>
-     SLA: ${t.sla} мин<br>
-     Статус: ${t.status}
+Приоритет: ${t.priority}<br>
+SLA: ${t.sla} мин<br>
+Статус: ${t.status}
    `;
    div.onclick=()=>selectTask(t);
    container.appendChild(div);
 });
 
- 
-
 localStorage.setItem("activeTasks", JSON.stringify(tasks));
 }
 
- 
-
 renderTasks();
-
- 
 
 function selectTask(task){
 selectedTask=task;
@@ -236,23 +174,32 @@ marker=L.marker([task.lat,task.lng]).addTo(map);
 map.setView([task.lat,task.lng],15);
 }
 
- 
-
 async function buildRoute(){
 if(!selectedTask){alert("Выберите задачу");return;}
-const url=`https://router.project-osrm.org/route/v1/driving/80.2275,50.4111,${selectedTask.lng},${selectedTask…
-const res=await fetch(url);
-const data=await res.json();
-if(routeLayer) map.removeLayer(routeLayer);
-routeLayer=L.geoJSON(data.routes[0].geometry).addTo(map);
-}
 
- 
+const startLng = 80.2275;
+const startLat = 50.4111;
+
+const url = `https://router.project-osrm.org/route/v1/driving/${startLng},${startLat},${selectedTask.lng},${selectedTask.lat}?overview=full&geometries=geojson`;
+
+try{
+const res = await fetch(url);
+const data = await res.json();
+
+if(routeLayer) map.removeLayer(routeLayer);
+
+routeLayer = L.geoJSON(data.routes[0].geometry).addTo(map);
+map.fitBounds(routeLayer.getBounds());
+}catch(e){
+alert("Ошибка построения маршрута");
+}
+}
 
 function startTask(){
 if(!selectedTask){alert("Выберите задачу");return;}
 startTime=new Date();
 selectedTask.status="in_progress";
+
 interval=setInterval(()=>{
    const sec=Math.floor((new Date()-startTime)/1000);
    const h=String(Math.floor(sec/3600)).padStart(2,"0");
@@ -260,27 +207,20 @@ interval=setInterval(()=>{
    const s=String(sec%60).padStart(2,"0");
    document.getElementById("timer").innerText=`${h}:${m}:${s}`;
 },1000);
+
 renderTasks();
 }
-
-
- 
 
 function finishTask(){
 const before=document.getElementById("beforePhoto").files[0];
 const after=document.getElementById("afterPhoto").files[0];
+
 if(!before||!after){alert("Фото обязательны");return;}
 if(!startTime){alert("Сначала начните задачу");return;}
 
- 
-
 clearInterval(interval);
 
- 
-
 const duration=(new Date()-startTime)/60000;
-
- 
 
 const completed={
    ...selectedTask,
@@ -288,26 +228,15 @@ const completed={
    date:new Date().toLocaleDateString()
 };
 
- 
-
 completedTasks.push(completed);
-
- 
-
 tasks = tasks.filter(t=>t.id!==selectedTask.id);
-
- 
 
 localStorage.setItem("activeTasks", JSON.stringify(tasks));
 localStorage.setItem("completedTasks", JSON.stringify(completedTasks));
 
- 
-
 updateKPI();
 renderTasks();
 renderCompleted();
-
- 
 
 selectedTask=null;
 startTime=null;
@@ -315,19 +244,14 @@ document.getElementById("timer").innerText="00:00:00";
 document.getElementById("beforePhoto").value="";
 document.getElementById("afterPhoto").value="";
 if(marker) map.removeLayer(marker);
-
- 
+if(routeLayer) map.removeLayer(routeLayer);
 
 alert("Задача завершена");
 }
 
- 
-
 function renderCompleted(){
 const container=document.getElementById("completedTasks");
 container.innerHTML="";
-
- 
 
 completedTasks.forEach(t=>{
    const div=document.createElement("div");
@@ -335,33 +259,23 @@ completedTasks.forEach(t=>{
    div.style.padding="8px 0";
    div.innerHTML=`
 <strong>${t.title}</strong><br>
-     ⏱ ${t.duration.toFixed(1)} мин<br>
-     📅 ${t.date}
+⏱ ${t.duration.toFixed(1)} мин<br>
+📅 ${t.date}
    `;
    container.prepend(div);
 });
 }
 
- 
-
 renderCompleted();
-
-
-
- 
 
 function updateKPI(){
 const today=new Date().toLocaleDateString();
 const todayTasks=completedTasks.filter(t=>t.date===today);
 document.getElementById("todayCount").innerText=todayTasks.length;
 
- 
-
 let score=Math.min(todayTasks.length*20,100);
 document.getElementById("kpi").innerText=score+"%";
 }
-
-
 
 function addNewTask(){
 const id=Date.now();
@@ -378,19 +292,13 @@ tasks.push(newTask);
 renderTasks();
 }
 
- 
-
 updateKPI();
 
- 
-
 </script>
+
 </body>
 </html>
 
  
 
  
-
-
-
