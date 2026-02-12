@@ -74,7 +74,6 @@ footer{background:white;padding:30px 60px;text-align:center;font-size:14px;color
     </nav>
 </header>
 
-<!-- Главная -->
 <section id="home" class="section active">
     <div class="hero">
         <h1 data-lang-key="heroTitle">Цифровой город будущего</h1>
@@ -97,7 +96,6 @@ footer{background:white;padding:30px 60px;text-align:center;font-size:14px;color
     </div>
 </section>
 
-<!-- Профиль -->
 <section id="profile" class="section">
     <div class="card">
         <h2 data-lang-key="profileTitle">Личный профиль</h2>
@@ -112,7 +110,6 @@ footer{background:white;padding:30px 60px;text-align:center;font-size:14px;color
     </div>
 </section>
 
-<!-- Обращения -->
 <section id="complaints" class="section">
     <div class="card">
         <h2 data-lang-key="complaintTitle">Подать обращение</h2>
@@ -162,7 +159,6 @@ footer{background:white;padding:30px 60px;text-align:center;font-size:14px;color
     </div>
 </section>
 
-<!-- Уведомления -->
 <section id="notifications" class="section">
     <div class="card">
         <h2 data-lang-key="notificationsTitle">Уведомления</h2>
@@ -170,7 +166,6 @@ footer{background:white;padding:30px 60px;text-align:center;font-size:14px;color
     </div>
 </section>
 
-<!-- Emergency -->
 <section id="emergency" class="section">
     <div class="card emergency-box">
         <h2 data-lang-key="emergencyTitle">🚨 Экстренная информация</h2>
@@ -179,7 +174,6 @@ footer{background:white;padding:30px 60px;text-align:center;font-size:14px;color
     </div>
 </section>
 
-<!-- Голосование -->
 <section id="voting" class="section">
     <div class="card">
         <h2 data-lang-key="votingTitle">🏛 Голосование за актуальные проблемы города</h2>
@@ -232,7 +226,6 @@ footer{background:white;padding:30px 60px;text-align:center;font-size:14px;color
     </div>
 </section>
 
-<!-- Магазин -->
 <section id="shop" class="section">
     <div class="card">
         <h2>🛒 Магазин очков</h2>
@@ -263,7 +256,6 @@ footer{background:white;padding:30px 60px;text-align:center;font-size:14px;color
 </footer>
 
 <script>
-/* --- Вкладки --- */
 function showTab(e,id){
     document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
     document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
@@ -272,7 +264,6 @@ function showTab(e,id){
     setTimeout(()=>{ if(map) map.invalidateSize(); if(profileMap) profileMap.invalidateSize(); },100);
 }
 
-/* --- Языки --- */
 const translations={
     ru:{home:"Главная", profile:"Профиль", complaints:"Обращения", notifications:"Уведомления", emergency:"Emergency", voting:"Голосование", shop:"Магазин"},
     kz:{home:"Басты бет", profile:"Профиль", complaints:"Мөрдеулер", notifications:"Хабарламалар", emergency:"Төтенше жағдай", voting:"Дауыс беру", shop:"Дүкен"},
@@ -287,7 +278,6 @@ function updateLanguage(lang){
 document.getElementById("langSelect").addEventListener("change",e=>updateLanguage(e.target.value));
 updateLanguage("ru");
 
-/* --- Карты --- */
 let map = L.map('map').setView([50.416, 80.253], 13);
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
 let marker;
@@ -298,7 +288,6 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo
 L.marker([50.418,80.257]).bindPopup("Ямы на дороге").addTo(profileMap);
 L.marker([50.414,80.248]).bindPopup("Не работает освещение").addTo(profileMap);
 
-/* --- Обращения --- */
 document.getElementById("category").addEventListener("change",e=>{
     if(e.target.value==="Другое") document.getElementById("manualProblemDiv").style.display="block";
     else document.getElementById("manualProblemDiv").style.display="none";
@@ -322,15 +311,12 @@ document.getElementById("complaintForm").addEventListener("submit",e=>{
     points +=5; updatePointsDisplay();
 });
 
-/* --- Уведомления --- */
 const notifications=["Дорога на ул. Абая отремонтирована","Проблемы с освещением устранены"];
 document.getElementById("notificationList").innerHTML=notifications.map(n=>`<div class="notification">${n}</div>`).join('');
 
-/* --- Emergency --- */
 document.getElementById("weatherInfo").innerText="Температура: -5°C, снег, ветер 4м/с";
 document.getElementById("dangerLevel").innerText="Уровень опасности: высокий";
 
-/* --- Голосование --- */
 const votes={};
 document.getElementById("votingForm").addEventListener("submit",e=>{
     e.preventDefault();
@@ -347,7 +333,6 @@ function renderVotes(){
     document.getElementById("voteStats").innerHTML=Object.keys(votes).map(k=>`<div class="list-item">${k}: ${votes[k]}</div>`).join('');
 }
 
-/* --- Магазин --- */
 let points = 0;
 function updatePointsDisplay(){ document.getElementById("pointsDisplay").innerText = points; }
 function buyItem(item){
