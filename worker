@@ -1,1 +1,308 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartQala — Полевой сотрудник</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: #102940;
+    color: white;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+h2 {
+    font-family: 'Playfair Display', serif;
+    color: #E1BD72;
+}
+
+.card {
+    background: #184467;
+    padding: 25px;
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    margin-bottom: 30px;
+    border-left: 6px solid #E1BD72;
+}
+
+.card h3 {
+    color: #E1BD72;
+    margin-top: 0;
+}
+
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-high { 
+    background:#E74C3C; 
+    color:white; 
+}
+
+.badge-medium { 
+    background:#E1BD72; 
+    color:#102940; 
+}
+
+.badge-low { 
+    background:#2ECC71; 
+    color:white; 
+}
+
+.button {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    margin: 5px 5px 5px 0;
+    transition: 0.3s;
+}
+
+.button-primary {
+    background: #E1BD72;
+    color: #102940;
+}
+
+.button-primary:hover {
+    background: #f3d289;
+}
+
+.button-gold {
+    background: linear-gradient(90deg, #E1BD72, #f3d289);
+    color: #102940;
+}
+
+.button-danger {
+    background:#E74C3C;
+    color:white;
+}
+
+.progress {
+    width:100%;
+    height:8px;
+    background:#102940;
+    border-radius:6px;
+    margin-top:10px;
+}
+
+.progress-bar {
+    height:100%;
+    width:0%;
+    background:#E1BD72;
+    border-radius:6px;
+    transition:0.4s;
+}
+
+input, select, textarea {
+    width:100%;
+    padding:10px;
+    border-radius:10px;
+    border:1px solid #E1BD72;
+    background:#102940;
+    color:white;
+    margin-bottom:10px;
+}
+
+#map {
+    height: 350px;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h2>SmartQala — Полевой сотрудник</h2>
+
+<div class="card">
+<h3>Список задач</h3>
+<div id="taskList"></div>
+</div>
+
+<div class="card">
+<h3>KPI сотрудника</h3>
+<div id="kpiText"></div>
+<div class="progress">
+<div class="progress-bar" id="kpiBar"></div>
+</div>
+</div>
+
+<div class="card">
+<h3>Карта навигации</h3>
+<div id="map"></div>
+</div>
+
+<div class="card">
+<h3>Отчёт за день</h3>
+<button class="button button-primary" onclick="submitDailyReport()">Сформировать отчёт</button>
+<div id="dailyReport"></div>
+</div>
+
+</div>
+
+<script>
+
+// ====== ДАННЫЕ ======
+let tasks = [
+{ id:1, title:"Освещение — ул. Абая", priority:"High", lat:50.4111, lon:80.2275, completed:false, time:0 },
+{ id:2, title:"Яма — район Центр", priority:"Medium", lat:50.417, lon:80.23, completed:false, time:0 },
+{ id:3, title:"Мусор — парк", priority:"Low", lat:50.42, lon:80.25, completed:false, time:0 }
+];
+
+let timerInterval = null;
+let activeTask = null;
+
+// ====== КАРТА ======
+var map = L.map('map').setView([50.4111, 80.2275], 13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+tasks.forEach(t=>{
+    L.marker([t.lat,t.lon]).addTo(map)
+    .bindPopup(t.title);
+});
+
+// ====== ОТРИСОВКА ======
+function renderTasks(){
+
+    const container = document.getElementById("taskList");
+    container.innerHTML = "";
+
+    // сортировка по приоритету
+    const order = {High:1,Medium:2,Low:3};
+    tasks.sort((a,b)=>order[a.priority]-order[b.priority]);
+
+    tasks.forEach(task=>{
+
+        let badgeClass = task.priority=="High"?"badge-high":
+                         task.priority=="Medium"?"badge-medium":"badge-low";
+
+        let div = document.createElement("div");
+        div.className = "card";
+
+        div.innerHTML = `
+        <strong>${task.title}</strong>
+        <span class="badge ${badgeClass}">${task.priority}</span>
+        <div>Время: <span id="time${task.id}">${task.time}s</span></div>
+
+        <input type="file" onchange="savePhoto(event,${task.id},'before')">
+        <input type="file" onchange="savePhoto(event,${task.id},'after')">
+
+        <br>
+        <button class="button button-primary" onclick="startTimer(${task.id})">Старт</button>
+        <button class="button button-gold" onclick="navigate(${task.lat},${task.lon})">Навигация</button>
+        <button class="button button-danger" onclick="completeTask(${task.id})">Завершить</button>
+        `;
+
+        container.appendChild(div);
+    });
+
+    updateKPI();
+}
+
+// ====== ТАЙМЕР ======
+function startTimer(id){
+    if(timerInterval) clearInterval(timerInterval);
+    activeTask = tasks.find(t=>t.id==id);
+
+    timerInterval = setInterval(()=>{
+        activeTask.time++;
+        document.getElementById("time"+id).innerText = activeTask.time+"s";
+    },1000);
+}
+
+// ====== ФОТО ======
+function savePhoto(e,id,type){
+    const task = tasks.find(t=>t.id==id);
+    task[type] = true;
+    alert("Фото "+type+" сохранено");
+}
+
+// ====== НАВИГАЦИЯ ======
+function navigate(lat,lon){
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`);
+}
+
+// ====== ЗАВЕРШЕНИЕ ======
+function completeTask(id){
+
+    const task = tasks.find(t=>t.id==id);
+
+    if(!task.before || !task.after){
+        alert("Необходимо фото До и После!");
+        return;
+    }
+
+    if(task.time==0){
+        alert("Не зафиксировано время работы!");
+        return;
+    }
+
+    task.completed = true;
+    clearInterval(timerInterval);
+
+    sendReport(task);
+    alert("Отчёт отправлен автоматически!");
+
+    renderTasks();
+}
+
+// ====== ОТПРАВКА ОТЧЁТА ======
+function sendReport(task){
+    console.log("Отправка отчёта:",task);
+}
+
+// ====== KPI ======
+function updateKPI(){
+    let total = tasks.length;
+    let done = tasks.filter(t=>t.completed).length;
+    let photoScore = tasks.filter(t=>t.before && t.after).length / total;
+    let completionRate = done/total;
+
+    let score = Math.round((completionRate*0.5 + photoScore*0.5)*100);
+
+    document.getElementById("kpiText").innerText =
+    `Выполнено: ${done}/${total} | KPI: ${score}/100`;
+
+    document.getElementById("kpiBar").style.width = score+"%";
+}
+
+// ====== ДНЕВНОЙ ОТЧЁТ ======
+function submitDailyReport(){
+    let report = tasks.map(t=>({
+        title:t.title,
+        completed:t.completed,
+        time:t.time
+    }));
+
+    document.getElementById("dailyReport").innerText =
+    JSON.stringify(report,null,2);
+
+    console.log("Дневной отчёт:",report);
+}
+
+renderTasks();
+
+</script>
+
+</body>
+</html>
 
